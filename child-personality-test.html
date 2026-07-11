@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Child's Personality — Discover Their Type</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --sand:#EFE7D8;
+    --sand-deep:#E4D9C4;
+    --ink:#3A3229;
+    --ink-soft:#6B6153;
+    --water:#4A7C9E;
+    --fire:#B85C38;
+    --earth:#5B7355;
+    --air:#8B7FA8;
+    --line:#D9CDB6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Montserrat',sans-serif;
+    background:var(--sand);
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    line-height:1.6;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  .stage{
+    width:100%;
+    max-width:640px;
+    position:relative;
+  }
+
+  /* ---- Botanical corner ornament, signature element ---- */
+  .ornament{
+    position:absolute;
+    top:-40px;
+    left:50%;
+    transform:translateX(-50%);
+    width:64px;
+    height:64px;
+    opacity:0.55;
+    pointer-events:none;
+  }
+
+  .card{
+    background:#FBF8F1;
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:52px 40px;
+    box-shadow:0 1px 2px rgba(58,50,41,0.04), 0 12px 32px rgba(58,50,41,0.06);
+    animation:riseIn 0.5s ease both;
+  }
+  @keyframes riseIn{
+    from{opacity:0; transform:translateY(14px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    text-align:center;
+    margin-bottom:14px;
+    font-weight:500;
+  }
+
+  h1{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600;
+    font-size:38px;
+    text-align:center;
+    line-height:1.15;
+    margin-bottom:16px;
+    color:var(--ink);
+  }
+  h2{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600;
+    font-size:30px;
+    text-align:center;
+    line-height:1.2;
+    margin-bottom:8px;
+  }
+
+  .lede{
+    text-align:center;
+    font-size:15px;
+    color:var(--ink-soft);
+    max-width:440px;
+    margin:0 auto 32px;
+  }
+
+  .glyph-row{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    margin-bottom:30px;
+    font-size:26px;
+  }
+  .glyph-row span{opacity:0.85;}
+
+  .btn{
+    display:block;
+    width:100%;
+    text-align:center;
+    background:var(--ink);
+    color:var(--sand);
+    border:none;
+    border-radius:2px;
+    padding:16px 20px;
+    font-family:'Montserrat',sans-serif;
+    font-size:14px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    font-weight:500;
+    cursor:pointer;
+    transition:background 0.2s ease, transform 0.15s ease;
+    text-decoration:none;
+  }
+  .btn:hover{background:#5B4F3F;}
+  .btn:active{transform:scale(0.99);}
+  .btn:focus-visible{outline:2px solid var(--water); outline-offset:2px;}
+
+  .btn-ghost{
+    background:transparent;
+    color:var(--ink);
+    border:1px solid var(--ink);
+    margin-top:12px;
+  }
+  .btn-ghost:hover{background:rgba(58,50,41,0.06);}
+
+  /* ---- progress ---- */
+  .progress-wrap{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:34px;
+  }
+  .progress-track{
+    flex:1;
+    height:2px;
+    background:var(--line);
+    position:relative;
+    border-radius:2px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    position:absolute;
+    left:0; top:0; bottom:0;
+    background:var(--ink);
+    width:0%;
+    transition:width 0.35s ease;
+  }
+  .progress-label{
+    font-size:11px;
+    color:var(--ink-soft);
+    letter-spacing:0.05em;
+    white-space:nowrap;
+    min-width:64px;
+    text-align:right;
+  }
+
+  .question{
+    font-family:'Cormorant Garamond', serif;
+    font-size:26px;
+    font-weight:500;
+    line-height:1.3;
+    margin-bottom:28px;
+    min-height:70px;
+  }
+
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-bottom:6px;
+  }
+  .opt{
+    text-align:left;
+    background:transparent;
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:15px 18px;
+    font-family:'Montserrat',sans-serif;
+    font-size:14.5px;
+    color:var(--ink);
+    cursor:pointer;
+    transition:border-color 0.15s ease, background 0.15s ease;
+  }
+  .opt:hover{border-color:var(--ink); background:rgba(58,50,41,0.03);}
+  .opt:focus-visible{outline:2px solid var(--water); outline-offset:1px;}
+
+  /* ---- result reveal ---- */
+  .seal{
+    width:88px;
+    height:88px;
+    margin:0 auto 22px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:40px;
+    animation:bloom 0.7s cubic-bezier(.2,.8,.3,1) both;
+  }
+  @keyframes bloom{
+    from{opacity:0; transform:scale(0.6);}
+    to{opacity:1; transform:scale(1);}
+  }
+  .seal.water{background:radial-gradient(circle, #DCEAF2, #C6DEEA);}
+  .seal.fire{background:radial-gradient(circle, #F3DECF, #EBC7AC);}
+  .seal.earth{background:radial-gradient(circle, #DEE6D8, #C9D6C1);}
+  .seal.air{background:radial-gradient(circle, #E6E1EE, #D5CDE3);}
+  .seal.lunar{background:radial-gradient(circle, #E2E7EF, #CBD3E2);}
+  .seal.spark{background:radial-gradient(circle, #F5DCC8, #EEC29E);}
+  .seal.deep{background:radial-gradient(circle, #DCE3D5, #C4D0B9);}
+  .seal.flexible{background:radial-gradient(circle, #EADCEE, #D9C0E0);}
+
+  .type-name{
+    text-align:center;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+
+  .section-label{
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:22px 0 8px;
+    font-weight:600;
+  }
+  .section-label:first-of-type{margin-top:26px;}
+
+  ul.plain{list-style:none; padding:0;}
+  ul.plain li{
+    font-size:14px;
+    padding-left:16px;
+    position:relative;
+    margin-bottom:5px;
+    color:var(--ink);
+  }
+  ul.plain li::before{
+    content:'—';
+    position:absolute;
+    left:0;
+    color:var(--ink-soft);
+  }
+
+  .phrase-box{
+    background:var(--sand-deep);
+    border-left:2px solid var(--ink);
+    padding:14px 18px;
+    margin:16px 0;
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:17px;
+    line-height:1.5;
+  }
+
+  .divider{
+    border:none;
+    border-top:1px solid var(--line);
+    margin:34px 0 26px;
+  }
+
+  .fine{
+    text-align:center;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:18px;
+  }
+  .fine a{color:var(--ink); text-decoration:underline;}
+
+  .hidden{display:none;}
+
+  .cta-block{
+    background:var(--ink);
+    color:var(--sand);
+    padding:30px 26px;
+    border-radius:2px;
+    margin-top:36px;
+    text-align:center;
+  }
+  .cta-block h3{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600;
+    font-size:24px;
+    margin-bottom:8px;
+  }
+  .cta-block p{
+    font-size:13.5px;
+    color:#D9CFBC;
+    margin-bottom:20px;
+  }
+  .cta-block .btn{
+    background:var(--sand);
+    color:var(--ink);
+  }
+  .cta-block .btn:hover{background:#fff;}
+
+  @media (max-width:480px){
+    .card{padding:38px 22px;}
+    h1{font-size:30px;}
+    .question{font-size:22px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- SCREEN 0: INTRO -->
+  <section id="screen-intro" class="card">
+    <div class="glyph-row"><span>🌊</span><span>🔥</span><span>🌿</span><span>🌪</span></div>
+    <div class="eyebrow">A two-part test for parents</div>
+    <h1>Your Child's<br>Personality</h1>
+    <p class="lede">Every child leans toward one of four natural types — and one of four nervous-system temperaments. Answer honestly, go with your first instinct, and meet the version of your child that explains so much.</p>
+    <button class="btn" id="start-btn">Begin — Part One</button>
+    <p class="fine">Takes about 4 minutes. Just you and your child in mind.</p>
+  </section>
+
+  <!-- SCREEN 1: QUIZ (shared for both tests) -->
+  <section id="screen-quiz" class="card hidden">
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-label" id="progress-label">1 / 15</div>
+    </div>
+    <div class="question" id="question-text"></div>
+    <div class="options" id="options-wrap"></div>
+  </section>
+
+  <!-- SCREEN 2: RESULT TYPE (element) -->
+  <section id="screen-result-1" class="card hidden">
+    <div class="seal" id="seal-1"><span id="seal-emoji-1"></span></div>
+    <div class="type-name" id="type-eyebrow-1">Part One Result</div>
+    <h2 id="type-title-1"></h2>
+    <p class="lede" id="type-sub-1"></p>
+
+    <div class="section-label">Who they are</div>
+    <p id="whoarethey-1"></p>
+
+    <div class="section-label">You'll recognize this child if they</div>
+    <ul class="plain" id="recognize-1"></ul>
+
+    <div class="section-label">Strengths</div>
+    <ul class="plain" id="strengths-1"></ul>
+
+    <div class="section-label">Challenges</div>
+    <ul class="plain" id="challenges-1"></ul>
+
+    <div class="section-label">In difficult moments</div>
+    <ul class="plain" id="difficult-1"></ul>
+
+    <div class="section-label">What overwhelms them</div>
+    <ul class="plain" id="overwhelm-1"></ul>
+
+    <div class="section-label">What helps</div>
+    <ul class="plain" id="helps-1"></ul>
+
+    <div class="section-label">Common mistake</div>
+    <p class="phrase-box" id="mistake-1"></p>
+
+    <div class="section-label">Better approach</div>
+    <p class="phrase-box" id="approach-1"></p>
+
+    <hr class="divider">
+    <button class="btn" id="continue-btn">Continue — Part Two</button>
+  </section>
+
+  <!-- SCREEN 3: RESULT TYPE (temperament) + final CTA -->
+  <section id="screen-result-2" class="card hidden">
+    <div class="seal" id="seal-2"><span id="seal-emoji-2"></span></div>
+    <div class="type-name" id="type-eyebrow-2">Part Two Result</div>
+    <h2 id="type-title-2"></h2>
+    <p class="lede" id="type-sub-2"></p>
+
+    <div class="section-label">These children</div>
+    <ul class="plain" id="thesechildren-2"></ul>
+
+    <div class="section-label">What may trigger them</div>
+    <ul class="plain" id="trigger-2"></ul>
+
+    <div class="section-label">What helps</div>
+    <ul class="plain" id="helps-2"></ul>
+
+    <div class="section-label">Potential strengths</div>
+    <ul class="plain" id="strengths-2"></ul>
+
+    <div class="cta-block">
+      <h3>Two pieces of the picture</h3>
+      <p>You now know how your child moves through the world, and how their nervous system carries them through it. Keep this page bookmarked — it's yours to revisit anytime you need a reminder.</p>
+      <button class="btn" id="download-pdf-btn" type="button">Download Your Cheat Sheet (PDF)</button>
+    </div>
+    <p class="fine">Want to take it again for another child? <a href="#" id="restart-link">Start over</a></p>
+  </section>
+
+</div>
+
+<script>
+(function(){
+
+  // ---------- QUESTION DATA ----------
+  var test1Questions = [
+    {q:"Your child is playing and something breaks:", opts:[
+      ["A","Gets upset and may cry"],["B","Gets angry and may throw the toy"],
+      ["C","Calmly starts fixing it"],["D","Quickly switches to another game"]]},
+    {q:"You say: \u201cTime to leave the playground.\u201d", opts:[
+      ["A","Feels sad and asks for more time"],["B","Argues and says \u201cno\u201d"],
+      ["C","Agrees, but takes time to get ready"],["D","Runs off to keep playing"]]},
+    {q:"Your child meets new children:", opts:[
+      ["A","Observes first and feels shy"],["B","Immediately takes charge of the game"],
+      ["C","Calmly joins in"],["D","Moves quickly between groups"]]},
+    {q:"When your child is tired:", opts:[
+      ["A","Becomes very sensitive"],["B","Gets irritable or angry"],
+      ["C","Becomes quiet"],["D","Becomes hyperactive"]]},
+    {q:"When you explain rules:", opts:[
+      ["A","Worries about making mistakes"],["B","Argues with the rules"],
+      ["C","Tries to understand the logic"],["D","Gets distracted"]]},
+    {q:"Your child loses a game:", opts:[
+      ["A","Gets very upset"],["B","Gets angry and blames others"],
+      ["C","Accepts the result calmly"],["D","Says \u201cLet\u2019s play something else\u201d"]]},
+    {q:"Something new happens (new class, new place):", opts:[
+      ["A","Feels anxious and asks many questions"],["B","Acts boldly and jumps right in"],
+      ["C","Observes carefully first"],["D","Excitedly explores everything"]]},
+    {q:"Your child is interrupted while playing:", opts:[
+      ["A","Gets upset"],["B","Gets irritated"],
+      ["C","Asks to finish what they started"],["D","Easily switches to something else"]]},
+    {q:"How your child reacts to limits:", opts:[
+      ["A","Feels sad"],["B","Protests"],
+      ["C","Tries to understand why"],["D","Tries to get around the rule"]]},
+    {q:"When your child is bored:", opts:[
+      ["A","Looks for an adult or support"],["B","Starts making noise or provoking"],
+      ["C","Finds a quiet activity"],["D","Starts moving and looking for adventure"]]},
+    {q:"How your child reacts to praise:", opts:[
+      ["A","Becomes very happy and emotional"],["B","Feels like a winner"],
+      ["C","Smiles calmly"],["D","Quickly moves on to something else"]]},
+    {q:"When your child is deeply engaged:", opts:[
+      ["A","Becomes emotionally immersed"],["B","Wants to be the best"],
+      ["C","Stays focused for a long time"],["D","Jumps from one idea to another"]]},
+    {q:"When things don\u2019t go as planned:", opts:[
+      ["A","May get upset or cry"],["B","Gets angry and tries to change things"],
+      ["C","Tries to calmly figure it out"],["D","Says \u201coh well\u201d and moves on"]]},
+    {q:"When your child is asked to wait:", opts:[
+      ["A","Becomes anxious"],["B","Starts protesting"],
+      ["C","Waits patiently"],["D","Finds something else to do"]]},
+    {q:"When your child feels proud:", opts:[
+      ["A","Wants to share their feelings"],["B","Wants to show they\u2019re the best"],
+      ["C","Calmly talks about the result"],["D","Quickly moves on to a new idea"]]}
+  ];
+
+  var test2Questions = [
+    {q:"A loud noise (something falls, bangs, etc.):", opts:[
+      ["A","Strongly startled or scared"],["B","Reacts very emotionally"],
+      ["C","Calmly looks to see what happened"],["D","Quickly returns to what they were doing"]]},
+    {q:"After strong emotions (joy, tears):", opts:[
+      ["A","Takes a long time to calm down"],["B","Big reaction first, then gradually settles"],
+      ["C","Calms down fairly quickly"],["D","Switches almost immediately"]]},
+    {q:"A lot of people and noise (party, guests):", opts:[
+      ["A","Gets tired quickly"],["B","Becomes even more active"],
+      ["C","Stays calm"],["D","Adapts easily"]]},
+    {q:"Woken up earlier than usual:", opts:[
+      ["A","Becomes very sensitive"],["B","Gets irritable"],
+      ["C","Wakes up calmly"],["D","Quickly gets into the day"]]},
+    {q:"Plans suddenly change:", opts:[
+      ["A","Gets worried or upset"],["B","May protest"],
+      ["C","Accepts calmly"],["D","Switches quickly"]]},
+    {q:"Your child is very happy:", opts:[
+      ["A","Emotions are deep"],["B","Joy is very intense"],
+      ["C","Calm happiness"],["D","Happy, but quickly moves on"]]},
+    {q:"When your child is tired:", opts:[
+      ["A","Becomes sensitive and whiny"],["B","Becomes irritable or explosive"],
+      ["C","Becomes quiet"],["D","Becomes distracted"]]},
+    {q:"A difficult task (puzzle, building):", opts:[
+      ["A","Gets upset if it doesn\u2019t work"],["B","Gets angry"],
+      ["C","Calmly tries again"],["D","May quickly switch to something else"]]},
+    {q:"Your child is upset:", opts:[
+      ["A","Seeks comfort"],["B","Expresses emotions loudly"],
+      ["C","Becomes quiet"],["D","Gets distracted quickly"]]},
+    {q:"New playground or place:", opts:[
+      ["A","Stays close to parents at first"],["B","Actively explores"],
+      ["C","Observes calmly"],["D","Adapts quickly"]]},
+    {q:"Needs to wait (e.g. a line):", opts:[
+      ["A","Becomes anxious"],["B","Gets irritated"],
+      ["C","Waits patiently"],["D","Easily finds something to do"]]},
+    {q:"Falls or gets hurt:", opts:[
+      ["A","Stays upset for a long time"],["B","Reacts intensely"],
+      ["C","Calms down quickly"],["D","Almost immediately forgets"]]},
+    {q:"Many new impressions in one day:", opts:[
+      ["A","Gets overwhelmed"],["B","Becomes overstimulated"],
+      ["C","Feels fine"],["D","Handles it easily"]]},
+    {q:"Receives criticism:", opts:[
+      ["A","Gets deeply upset"],["B","May argue"],
+      ["C","Listens calmly"],["D","Doesn\u2019t dwell on it"]]},
+    {q:"After an active day:", opts:[
+      ["A","Needs a long time to calm down"],["B","Emotions stay intense for a while"],
+      ["C","Calms down easily for sleep"],["D","Switches to rest quickly"]]}
+  ];
+
+  var results1 = {
+    A:{emoji:"\ud83c\udf0a", seal:"water", title:"Water Child", sub:"Deep-feeling \u2022 Empathic \u2022 Attuned",
+      whoTheyAre:"Children with deep emotions. They feel the world more intensely than others \u2014 sometimes it may seem like their emotions are as big as the ocean.",
+      recognize:["Get deeply upset over small things","Are strongly attached to loved ones","Remember hurt feelings for a long time","Love comfort and calm environments"],
+      strengths:["Empathy","Imagination","Kindness","Deep connection with others"],
+      challenges:["Easily hurt","Sensitive to criticism","May fear new situations"],
+      difficult:["May cry","Withdraw","Seek support from adults"],
+      overwhelm:["Yelling","Sudden changes","Pressure"],
+      helps:["A calm tone","Time to adjust","Lots of support"],
+      mistake:"\u201cStop crying, it\u2019s nothing.\u201d",
+      approach:"\u201cI see that this is really hard for you. I\u2019m here with you.\u201d"},
+    B:{emoji:"\ud83d\udd25", seal:"fire", title:"Fire Child", sub:"Strong-willed \u2022 Bold \u2022 A born negotiator",
+      whoTheyAre:"Strong-willed children \u2014 little negotiators (or tiny lawyers \ud83d\ude04)",
+      recognize:["Like to lead games","Often argue with adults","Want to do things their own way","Have a lot of energy"],
+      strengths:["Leadership","Courage","Energy","Confidence"],
+      challenges:["Stubbornness","Emotional outbursts","Desire to control"],
+      difficult:["Argue","Express emotions loudly","May get angry"],
+      overwhelm:["Strict control","Constant restrictions"],
+      helps:["Choice \u2014 \u201cYou can wear the red jacket or the blue one.\u201d"],
+      mistake:"Constant commands.",
+      approach:"Give them a sense of choice and influence."},
+    C:{emoji:"\ud83c\udf3f", seal:"earth", title:"Earth Child", sub:"Observant \u2022 Thoughtful \u2022 Steady",
+      whoTheyAre:"Observers and thinkers. They like to understand how everything works.",
+      recognize:["Notice details","Ask many \u201cwhy\u201d questions","Prefer calm activities","Like order and structure"],
+      strengths:["Patience","Focus","Carefulness"],
+      challenges:["May be slow","Struggle with transitions"],
+      difficult:["Become quiet","Withdraw inward","Try to figure things out"],
+      overwhelm:["Rushing","Chaos"],
+      helps:["Clear explanations \u2014 these children need to understand why"],
+      mistake:"Rushing or pressuring them.",
+      approach:"Give time and explain the situation."},
+    D:{emoji:"\ud83c\udf2a", seal:"air", title:"Air Child", sub:"Curious \u2022 Creative \u2022 Always moving",
+      whoTheyAre:"Little explorers of the world. Their brain is constantly saying: \u201cOoh, what\u2019s that?!\u201d",
+      recognize:["Are always moving","Get excited about new ideas quickly","Are easily distracted","Love adventure"],
+      strengths:["Creativity","Energy","Curiosity"],
+      challenges:["Easily distracted","May not finish tasks"],
+      difficult:["Start running or fidgeting","Look for something new","May ignore rules"],
+      overwhelm:["Long explanations","Boredom"],
+      helps:["Play","Movement"],
+      mistake:"Expecting them to sit still for long periods.",
+      approach:"Give short tasks and include movement."}
+  };
+
+  var results2 = {
+    A:{emoji:"\ud83c\udf19", seal:"lunar", title:"Lunar Temperament", sub:"A highly sensitive nervous system",
+      theseChildren:["Are very sensitive","Experience emotions deeply","Take longer to calm down"],
+      trigger:["Loud noises","Harsh words","Overstimulating environments","Fatigue"],
+      helps:["A gentle voice","Extra support","Preparing them for changes in advance"],
+      strengths:["Creativity","Empathy","Artistic ability","Deep thinking"]},
+    B:{emoji:"\u26a1", seal:"spark", title:"Spark Temperament", sub:"Fast, intense reactions that cool down just as fast",
+      theseChildren:["React instantly","Feel emotions strongly","Get excited quickly"],
+      trigger:["Strict control","Rules without explanation","Power struggles"],
+      helps:["Offering choices","Acknowledging emotions","Staying calm yourself"],
+      strengths:["Leadership","Sports","Performance","Initiative"]},
+    C:{emoji:"\ud83c\udf33", seal:"deep", title:"Deep Temperament", sub:"A stable, rarely-overwhelmed nervous system",
+      theseChildren:["React calmly","Rarely get overwhelmed","Prefer stability"],
+      trigger:["Chaos","Sudden changes","Rushing"],
+      helps:["Calm explanations","Time","Structure"],
+      strengths:["Focus","Logic","Research skills","Persistence"]},
+    D:{emoji:"\ud83c\udf08", seal:"flexible", title:"Flexible Temperament", sub:"Highly adaptable \u2014 quick to switch, slow to get stuck",
+      theseChildren:["Adapt quickly","Switch easily","Don\u2019t stay stuck in emotions"],
+      trigger:["Boredom","Repetition","Lack of stimulation"],
+      helps:["Play","Engagement","Movement"],
+      strengths:["Creativity","Communication","Quick thinking","Flexibility"]}
+  };
+
+  // ---------- STATE ----------
+  var current = { phase:1, index:0, counts:{A:0,B:0,C:0,D:0}, type1:null, type2:null };
+
+  var screens = {
+    intro: document.getElementById('screen-intro'),
+    quiz: document.getElementById('screen-quiz'),
+    result1: document.getElementById('screen-result-1'),
+    result2: document.getElementById('screen-result-2')
+  };
+
+  function show(el){
+    Object.keys(screens).forEach(function(k){ screens[k].classList.add('hidden'); });
+    el.classList.remove('hidden');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function activeQuestions(){
+    return current.phase === 1 ? test1Questions : test2Questions;
+  }
+
+  function renderQuestion(){
+    var qs = activeQuestions();
+    var item = qs[current.index];
+    document.getElementById('question-text').textContent = item.q;
+    var wrap = document.getElementById('options-wrap');
+    wrap.innerHTML = '';
+    item.opts.forEach(function(pair){
+      var btn = document.createElement('button');
+      btn.className = 'opt';
+      btn.type = 'button';
+      btn.textContent = pair[1];
+      btn.addEventListener('click', function(){ answer(pair[0]); });
+      wrap.appendChild(btn);
+    });
+    var total = qs.length;
+    var pct = (current.index / total) * 100;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-label').textContent = (current.index+1) + ' / ' + total;
+  }
+
+  function answer(letter){
+    current.counts[letter]++;
+    var qs = activeQuestions();
+    if(current.index < qs.length - 1){
+      current.index++;
+      renderQuestion();
+    } else {
+      finishPhase();
+    }
+  }
+
+  function topLetter(){
+    var c = current.counts;
+    var letters = ['A','B','C','D'];
+    letters.sort(function(a,b){ return c[b]-c[a]; });
+    return letters[0];
+  }
+
+  function finishPhase(){
+    var winner = topLetter();
+    if(current.phase === 1){
+      current.type1 = winner;
+      renderResult1(winner);
+      show(screens.result1);
+    } else {
+      current.type2 = winner;
+      renderResult2(winner);
+      show(screens.result2);
+    }
+  }
+
+  function fillList(id, arr){
+    var ul = document.getElementById(id);
+    ul.innerHTML = '';
+    arr.forEach(function(t){
+      var li = document.createElement('li');
+      li.textContent = t;
+      ul.appendChild(li);
+    });
+  }
+
+  function renderResult1(letter){
+    var r = results1[letter];
+    document.getElementById('seal-1').className = 'seal ' + r.seal;
+    document.getElementById('seal-emoji-1').textContent = r.emoji;
+    document.getElementById('type-title-1').textContent = r.title;
+    document.getElementById('type-sub-1').textContent = r.sub;
+    document.getElementById('whoarethey-1').textContent = r.whoTheyAre;
+    fillList('recognize-1', r.recognize);
+    fillList('strengths-1', r.strengths);
+    fillList('challenges-1', r.challenges);
+    fillList('difficult-1', r.difficult);
+    fillList('overwhelm-1', r.overwhelm);
+    fillList('helps-1', r.helps);
+    document.getElementById('mistake-1').textContent = r.mistake;
+    document.getElementById('approach-1').textContent = r.approach;
+  }
+
+  function renderResult2(letter){
+    var r = results2[letter];
+    document.getElementById('seal-2').className = 'seal ' + r.seal;
+    document.getElementById('seal-emoji-2').textContent = r.emoji;
+    document.getElementById('type-title-2').textContent = r.title;
+    document.getElementById('type-sub-2').textContent = r.sub;
+    fillList('thesechildren-2', r.theseChildren);
+    fillList('trigger-2', r.trigger);
+    fillList('helps-2', r.helps);
+    fillList('strengths-2', r.strengths);
+  }
+
+  document.getElementById('start-btn').addEventListener('click', function(){
+    current.phase = 1; current.index = 0; current.counts = {A:0,B:0,C:0,D:0};
+    renderQuestion();
+    show(screens.quiz);
+  });
+
+  document.getElementById('continue-btn').addEventListener('click', function(){
+    current.phase = 2; current.index = 0; current.counts = {A:0,B:0,C:0,D:0};
+    renderQuestion();
+    show(screens.quiz);
+  });
+
+  document.getElementById('restart-link').addEventListener('click', function(e){
+    e.preventDefault();
+    current = { phase:1, index:0, counts:{A:0,B:0,C:0,D:0}, type1:null, type2:null };
+    show(screens.intro);
+  });
+
+  document.getElementById('download-pdf-btn').addEventListener('click', function(){
+    if(!window.jspdf || !window.jspdf.jsPDF){
+      alert('The PDF tool didn\u2019t load. Please make sure you\u2019re connected to the internet and try again \u2014 this works best once the page is hosted online rather than opened as a local file.');
+      return;
+    }
+    try{
+      generateCheatSheet(current.type1, current.type2);
+    } catch(err){
+      alert('Something went wrong creating the PDF. Please try again, or refresh the page.');
+      console.error(err);
+    }
+  });
+
+  function generateCheatSheet(letter1, letter2){
+    var r1 = results1[letter1];
+    var r2 = results2[letter2];
+    var jsPDFCtor = window.jspdf.jsPDF;
+    var doc = new jsPDFCtor({ unit:'pt', format:'a4' });
+
+    var pageWidth = doc.internal.pageSize.getWidth();
+    var margin = 56;
+    var maxWidth = pageWidth - margin*2;
+    var y = 70;
+
+    function heading(text, size){
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(size || 18);
+      doc.setTextColor(58,50,41);
+      doc.text(text, margin, y);
+      y += (size || 18) * 0.9;
+    }
+    function label(text){
+      y += 6;
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(10);
+      doc.setTextColor(107,97,83);
+      doc.text(text.toUpperCase(), margin, y);
+      y += 14;
+    }
+    function bullets(arr){
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(11);
+      doc.setTextColor(58,50,41);
+      arr.forEach(function(item){
+        var lines = doc.splitTextToSize('\u2014  ' + item, maxWidth);
+        lines.forEach(function(line){
+          doc.text(line, margin, y);
+          y += 15;
+        });
+      });
+    }
+    function paragraph(text, italic){
+      doc.setFont('helvetica', italic ? 'italic' : 'normal');
+      doc.setFontSize(12);
+      doc.setTextColor(58,50,41);
+      var lines = doc.splitTextToSize(text, maxWidth);
+      lines.forEach(function(line){
+        doc.text(line, margin, y);
+        y += 16;
+      });
+    }
+    function rule(){
+      y += 10;
+      doc.setDrawColor(217,205,182);
+      doc.line(margin, y, pageWidth - margin, y);
+      y += 22;
+    }
+    function checkPage(needed){
+      if(y + needed > doc.internal.pageSize.getHeight() - 50){
+        doc.addPage();
+        y = 60;
+      }
+    }
+
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(10);
+    doc.setTextColor(107,97,83);
+    doc.text('YOUR CHILD\u2019S PERSONALITY \u2014 PERSONAL CHEAT SHEET', margin, 40);
+
+    heading(r1.title + '  \u00d7  ' + r2.title, 22);
+    y += 4;
+    doc.setFont('helvetica','italic');
+    doc.setFontSize(11);
+    doc.setTextColor(107,97,83);
+    doc.text(r1.sub, margin, y);
+    y += 15;
+    doc.text(r2.sub, margin, y);
+    y += 10;
+    rule();
+
+    checkPage(60);
+    label('Who they are');
+    paragraph(r1.whoTheyAre);
+    y += 6;
+
+    checkPage(100);
+    label('You\u2019ll recognize this child if they');
+    bullets(r1.recognize);
+    y += 6;
+
+    checkPage(100);
+    label('Strengths');
+    bullets(r1.strengths);
+    y += 6;
+
+    checkPage(100);
+    label('Challenges');
+    bullets(r1.challenges);
+    y += 6;
+
+    checkPage(100);
+    label('In difficult moments');
+    bullets(r1.difficult);
+    y += 6;
+
+    checkPage(100);
+    label('What overwhelms them');
+    bullets(r1.overwhelm);
+    y += 6;
+
+    checkPage(100);
+    label('What helps');
+    bullets(r1.helps);
+    y += 6;
+
+    checkPage(60);
+    label('Common mistake');
+    paragraph(r1.mistake, true);
+    y += 4;
+
+    checkPage(60);
+    label('Better approach');
+    paragraph(r1.approach, true);
+
+    rule();
+
+    checkPage(100);
+    label('These children');
+    bullets(r2.theseChildren);
+    y += 6;
+
+    checkPage(100);
+    label('What may trigger them');
+    bullets(r2.trigger);
+    y += 6;
+
+    checkPage(100);
+    label('What helps');
+    bullets(r2.helps);
+    y += 6;
+
+    checkPage(100);
+    label('Potential strengths');
+    bullets(r2.strengths);
+
+    doc.save('my-childs-cheat-sheet.pdf');
+  }
+
+})();
+</script>
+</body>
+</html>
